@@ -1,23 +1,64 @@
-import React from 'react'
-import { NavBar } from './NavBar'
-import { Link } from 'react-router-dom'
+import React from 'react';
+import { NavBar } from './NavBar';
+import { Link } from 'react-router-dom';
 
 const LoginHome = () => {
   return (
-    <div className="container">
-        <NavBar/>
-        <br /><br />
-        <div className="row">
-            <div className="col col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-            <div class="d-grid gap-2 col-6 mx-auto">
-  <Link class="btn btn-dark" type="button" to={'/alogin'}>ADMIN</Link><br />
-  <Link class="btn btn-dark" type="button" to={'/vlogin'}>VOLUNTEER</Link><br />
-  <Link class="btn btn-dark" type="button" to={'/ulogin'}>USER</Link>
-</div>
-            </div>
+    <div className="container" style={{ marginTop: '50px' }}>
+      <NavBar />
+      <div
+        style={{
+          padding: '40px',
+          backgroundColor: '#f9f9f9',
+          borderRadius: '10px',
+          boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+          textAlign: 'center',
+        }}
+      >
+        <h2 style={{ color: '#333', fontWeight: 'bold', marginBottom: '20px' }}>
+          Welcome to the Portal
+        </h2>
+        <div className="d-grid gap-3 col-md-6 mx-auto">
+          <Link
+            className="btn btn-lg btn-primary"
+            style={{
+              padding: '15px 20px',
+              fontSize: '1.25rem',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
+              transition: 'all 0.3s ease-in-out',
+            }}
+            to={'/alogin'}
+          >
+            Admin
+          </Link>
+          <Link
+            className="btn btn-lg btn-success"
+            style={{
+              padding: '15px 20px',
+              fontSize: '1.25rem',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
+              transition: 'all 0.3s ease-in-out',
+            }}
+            to={'/vlogin'}
+          >
+            Volunteer
+          </Link>
+          <Link
+            className="btn btn-lg btn-info"
+            style={{
+              padding: '15px 20px',
+              fontSize: '1.25rem',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
+              transition: 'all 0.3s ease-in-out',
+            }}
+            to={'/ulogin'}
+          >
+            User
+          </Link>
         </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default LoginHome
+export default LoginHome;
