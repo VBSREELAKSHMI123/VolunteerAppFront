@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';  
+import React, { useEffect, useState } from 'react';
 import { NavBar } from './NavBar';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -36,9 +36,9 @@ const AdminDashboard = () => {
             [index]: true,
           }));
 
-          const { verificationMessage, description } = response.data.updatedRequest; 
+          const { verificationMessage, description } = response.data.updatedRequest;
           notifyUser(userId, verificationMessage, description);
-          
+
           alert("Verification successful.");
         }
       })
@@ -87,7 +87,7 @@ const AdminDashboard = () => {
     <div className="container-fluid" style={{ position: 'relative', height: '100vh' }}>
       <NavBar />
       <br /><br />
-      
+
       <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
         <button className="btn btn-danger btn-sm" onClick={handleLogout}>
           Logout
@@ -104,8 +104,8 @@ const AdminDashboard = () => {
             <Link className="btn btn-secondary" to={'/vvol'}>View Volunteer</Link>
             <Link className="btn btn-secondary" to={'/jobview'}>View Job</Link>
             <Link className="btn btn-secondary" to={'/jobs'}>Add Job</Link>
-            {/* Add View Feedback Button */}
             <Link className="btn btn-secondary" to={'/feedback'}>View Feedback</Link>
+            <Link className="btn btn-secondary" to={'/crequest'}>Certificate Request</Link>
           </div>
         </div>
 
@@ -113,9 +113,9 @@ const AdminDashboard = () => {
         <div className="col-md-9" style={{ position: 'absolute', right: 0, top: 70, bottom: 0, overflowY: 'auto', padding: '10px' }}>
           <h5>Requests for Verification:</h5>
           {data.map((value, index) => (
-            <div 
-              className="card mb-3" 
-              key={index} 
+            <div
+              className="card mb-3"
+              key={index}
               style={verifiedItems[index] ? verifiedCardStyle : unverifiedCardStyle} // Apply conditional styles
             >
               <div className="card-body">
@@ -123,10 +123,10 @@ const AdminDashboard = () => {
                 <p className="card-text">{value.description}</p>
                 <p className="card-text"><strong>Phone:</strong> {value.phone}</p>
                 <p className="card-text"><strong>Duration:</strong> {value.duration}</p>
-                <button 
+                <button
                   className="btn btn-success"
-                  onClick={() => handleVerifyClick(index, value._id, value.user_id)} 
-                  disabled={verifiedItems[index]} 
+                  onClick={() => handleVerifyClick(index, value._id, value.user_id)}
+                  disabled={verifiedItems[index]}
                 >
                   Verify
                 </button>

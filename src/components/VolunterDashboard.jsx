@@ -11,54 +11,67 @@ const VolunteerDashboard = () => {
   const [available, setAvailable] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
   const navigate = useNavigate();
+  const _id = sessionStorage.getItem('_id');
+  const token = sessionStorage.getItem('token');
 
-  useEffect(() => {
-    const _id = sessionStorage.getItem('_id');
-    const token = sessionStorage.getItem('token');
-  
-    if (_id && token) {
-      // Fetch assigned jobs for the volunteer
-      axios
-        .get(`http://localhost:8080/jview/${_id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          if (response.data.length > 0) {
-            setJobs(response.data);
-  
-            // Extract job titles and show in alert
-            const jobTitles = response.data.map(job => job.title).join(', ');
-            alert(`New job(s) assigned to you: ${jobTitles}`);
-          } else {
-            setError('No approved jobs found for this volunteer.');
-          }
-        })
-        .catch(() => {
-          setError('Failed to fetch jobs.');
-        });
-  
-      // Fetch volunteer details
-      axios
+  console.log(jobs);
+
+
+  const fetchJob = async () => {
+    console.log("test");
+
+    try {
+      if (_id && token) {
+        // Fetch assigned jobs for the volunteer
+        const res = await axios
+          .get(`http://localhost:8080/jview/${_id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+
+        if (res.data.length > 0) {
+          setJobs(res.data);
+          const jobTitles = res.data.map(job => job.title).join(', ');
+          // alert(`New job(s) assigned to you: ${jobTitles}`);
+        } else {
+          setError('No approved jobs found for this volunteer.');
+        }
+        setLoading(false)
+      }
+    } catch (err) {
+      console.log(err);
+
+    }
+  }
+
+  const fetchVolunteerDetails = async () => {
+    try {
+      const res = await axios
         .get(`http://localhost:8080/volunteer/${_id}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
-        .then((response) => {
-          setVolunteerDetails(response.data.volunteer);
-          setAvailable(response.data.volunteer.available);
-        })
-        .catch(() => {
-          setError('Failed to fetch volunteer details.');
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
+
+      if (res) {
+        setVolunteerDetails(res.data.volunteer);
+        setAvailable(res.data.volunteer.available);
+        setLoading(false)
+      } else {
+        setError('Failed to fetch volunteer details.');
+      }
+    } catch (err) {
+      console.log(err);
       setError('Volunteer ID or token not found.');
-      setLoading(false);
+
     }
+  }
+
+  useEffect(() => {
+    fetchJob()
+    // Fetch volunteer details
+    fetchVolunteerDetails()
+
   }, []);
-  
-  
+
+
 
   const toggleAvailability = () => {
     const _id = sessionStorage.getItem('_id');
@@ -129,13 +142,8 @@ const VolunteerDashboard = () => {
       )
       .then((response) => {
         if (response.data.status === 'success') {
-          setJobs((prevJobs) =>
-            prevJobs.map((job) =>
-              job._id === jobId
-                ? { ...job, accepted: true, rejected: false }
-                : job
-            )
-          );
+          console.log(response);
+          fetchJob()
         } else {
           setError(response.data.message);
         }
@@ -172,6 +180,123 @@ const VolunteerDashboard = () => {
         setError('Failed to reject job.');
       });
   };
+
+  const handleRequest = (job) => {
+    switch (job.status) {
+      case "request":
+        requestCer(job)
+        break;
+      case "pending":
+        alert("Waiting")
+
+        break;
+      case "verified":
+        alert("verified certificate")
+        break;
+      default:
+        break;
+    }
+  }
+
+
+  const requestCer = async (job) => {
+
+    const volunteerId = sessionStorage.getItem('_id');
+
+    if (!job || !job._id) {
+      console.log("Invalid job data:", job);
+      alert("Invalid job data. Cannot request a certificate.");
+      return;
+    }
+    try {
+      const res = await axios.post("http://localhost:8080/request-certificate", { volunteerId, job })
+      console.log(res);
+
+      if (res.data.status === "success") {
+        console.log("Response received:", res.data);
+        JobUpdate(job)
+      }
+    } catch (err) {
+      console.log(err);
+
+    }
+  }
+
+  const JobUpdate = async (job) => {
+    console.log(job);
+    try {
+      const res = await axios.patch(`http://localhost:8080/status-change/${job?._id}`, { status:"pending" })
+
+      console.log(res);
+      
+      if (res.data.status === "success") {
+        await fetchJob()
+      }
+    } catch (err) {
+        console.log(err);
+        
+    }
+  }
+
+
+  const requestCertificate = (job) => {
+    console.log("Button clicked! Job data:", job);
+
+    const volunteerId = sessionStorage.getItem('_id');
+
+    if (!job || !job._id) {
+      console.log("Invalid job data:", job);
+      alert("Invalid job data. Cannot request a certificate.");
+      return;
+    }
+
+    axios.post(`http://localhost:8080/request-certificate`, { volunteerId, job })
+      .then((response) => {
+        console.log("Response received:", response.data);
+
+
+
+        // Extract status from response, fallback to "request" if not provided
+        // const updatedStatus = response.data.certificateStatus || "request";
+
+        console.log("res", response.data.certificateStatus);
+
+
+        // console.log("Updated status from backend:", updatedStatus);
+
+        // switch (updatedStatus) {
+        //   case "request":
+        //     alert(response.data.message || 'Certificate request sent successfully!');
+        //     break;
+        //   case "pending":
+        //     alert("Request is pending");
+        //     break;
+        //   case "verified":
+        //     alert("Certificate already verified");
+        //     break;
+        //   default:
+        //     console.log("Unexpected status:", updatedStatus);
+        //     break;
+        // }
+
+        // // Update the job status in the UI
+        // setJobs((prevJobs) =>
+        //   prevJobs.map((j) =>
+        //     j._id === job._id ? { ...j, status: updatedStatus, certificateRequested: true } : j
+        //   )
+        // );
+      })
+      .catch((error) => {
+        console.error("Certificate Request Error:", error.response?.data || error);
+        alert('Failed to request certificate.');
+      });
+  };
+
+
+
+  console.log(jobs);
+
+
 
   return (
     <div
@@ -274,10 +399,25 @@ const VolunteerDashboard = () => {
                           <button
                             className="btn btn-danger"
                             onClick={() => rejectJob(job._id)}
-                            disabled={job.accepted || job.rejected}
-                          >
+                            disabled={job.accepted || job.rejected}>
                             {job.rejected ? 'Rejected' : 'Reject'}
                           </button>
+                          <button
+                            className="btn btn-warning"
+                            onClick={() => {
+                              handleRequest(job)
+                              console.log(job);
+
+                            }}
+                          >
+                            {job.status === "verified"
+                              ? "Download Certificate"
+                              : job.status === "request"
+                                ? "Requested Certificate"
+                                : "Pending"}
+                          </button>
+
+
                         </div>
                       </div>
                     </div>

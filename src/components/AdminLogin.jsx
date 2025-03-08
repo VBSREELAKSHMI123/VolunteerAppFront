@@ -52,8 +52,7 @@ const AdminLogin = () => {
                         borderRadius: '10px',
                         boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
                         width: '300px',
-                    }}
-                >
+                    }}>
                     <h3 className="text-center"><b>ADMIN LOGIN</b></h3>
                     <div className="form-group">
                         <label>Email</label>

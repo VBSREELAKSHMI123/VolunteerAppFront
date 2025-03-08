@@ -19,6 +19,7 @@ import RequestVolunteer from './components/RequestVolunteer';
 import JobView from './components/JobView';
 import Feedback from './components/Feedback';
 import Jobs from './components/Jobs';
+import CertificateRequest from './components/CertificateRequest';
 
 
 
@@ -44,6 +45,7 @@ function App() {
         <Route path='/jobview' element={<JobView />} />
         <Route path='/feedback' element={<Feedback />} />
         <Route path='/jobs' element={<Jobs />} />
+        <Route path='/crequest' element={<CertificateRequest />} />
       </Routes>
     </BrowserRouter>
       
