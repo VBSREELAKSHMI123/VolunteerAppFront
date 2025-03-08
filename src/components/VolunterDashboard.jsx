@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { NavBar } from './NavBar';
 import { useNavigate } from 'react-router-dom';
+import { saveAs } from 'file-saver';
 
 const VolunteerDashboard = () => {
   const [jobs, setJobs] = useState([]);
@@ -13,6 +14,7 @@ const VolunteerDashboard = () => {
   const navigate = useNavigate();
   const _id = sessionStorage.getItem('_id');
   const token = sessionStorage.getItem('token');
+  const volname = sessionStorage.getItem('volunteer_name');
 
   console.log(jobs);
 
@@ -191,13 +193,41 @@ const VolunteerDashboard = () => {
 
         break;
       case "verified":
-        alert("verified certificate")
+        alert("Verified! Generating certificate...");
+        
+        handleDownload(job._id, volname);
         break;
       default:
         break;
     }
   }
 
+
+  const handleDownload = async (jobId, volname) => {
+    try {
+      // Step 1: Send request to create the PDF
+      await axios
+        .post("http://localhost:8080/create-pdf", { jobId })
+        .then(() =>
+          // Step 2: Fetch the generated PDF from the server
+          axios.get("http://localhost:8080/fetch-pdf", { responseType: "blob" })
+        )
+        .then((res) => {
+          // Step 3: Create a blob object from the response data
+          const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+  
+          // Step 4: Trigger file download with the generated PDF
+          saveAs(pdfBlob, `Certificate of ${volname}.pdf`);
+        })
+        .catch((error) => {
+          console.error("Error in PDF generation:", error);
+          alert("Failed to generate the certificate");
+        });
+    } catch (err) {
+      console.error("Request failed:", err);
+    }
+  };
+  
 
   const requestCer = async (job) => {
 
